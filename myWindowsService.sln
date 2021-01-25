@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "myWindowsService", "myWindowsService\myWindowsService.csproj", "{F5ACF63F-43F7-4109-9ABA-365B53FB5A97}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsServiceClient", "WindowsServiceClient\WindowsServiceClient.csproj", "{BDFFE732-3984-4C69-97F6-F2901873AA18}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F5ACF63F-43F7-4109-9ABA-365B53FB5A97} = {F5ACF63F-43F7-4109-9ABA-365B53FB5A97}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -42,6 +42,7 @@
             this.button_install.TabIndex = 0;
             this.button_install.Text = "安装服务";
             this.button_install.UseVisualStyleBackColor = true;
+            this.button_install.Click += new System.EventHandler(this.button_install_Click);
             // 
             // button_uninstall
             // 
@@ -51,6 +52,7 @@
             this.button_uninstall.TabIndex = 1;
             this.button_uninstall.Text = "卸载服务";
             this.button_uninstall.UseVisualStyleBackColor = true;
+            this.button_uninstall.Click += new System.EventHandler(this.button_uninstall_Click);
             // 
             // button_start
             // 
@@ -60,6 +62,7 @@
             this.button_start.TabIndex = 0;
             this.button_start.Text = "启动服务";
             this.button_start.UseVisualStyleBackColor = true;
+            this.button_start.Click += new System.EventHandler(this.button_start_Click);
             // 
             // button_stop
             // 
@@ -69,6 +72,7 @@
             this.button_stop.TabIndex = 0;
             this.button_stop.Text = "停止服务";
             this.button_stop.UseVisualStyleBackColor = true;
+            this.button_stop.Click += new System.EventHandler(this.button_stop_Click);
             // 
             // Form1
             // 
