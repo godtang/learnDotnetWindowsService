@@ -1,6 +1,6 @@
 ﻿namespace myWindowsService
 {
-    partial class myService
+    partial class MyService
     {
         /// <summary> 
         /// 必需的设计器变量。

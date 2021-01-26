@@ -1,0 +1,143 @@
+﻿using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+
+
+namespace myWindowsService
+{
+
+    /// <summary>
+    /// 转发botscript
+    /// </summary>
+    class LogDispatcher : Dispatcher
+    {
+        const string CLASS_NAME = "UBEngineDispatcher";
+        static SendMessage_Func _callBack = SendMessageProxy;
+        public LogDispatcher(ISession session, System.Threading.SynchronizationContext synchronizationContext)
+            : base(session, synchronizationContext)
+        {
+            Logger.Instance.I(CLASS_NAME, "#construct UBEngineDispatcher");
+            try
+            {
+                //Console.WriteLine($"call OnConnect({session.Sid})");
+                OnConnect(session.Sid, _callBack);
+            }
+            catch (Exception ex)
+            {
+                Logger.Instance.E(CLASS_NAME, ex.ToString());
+                System.Windows.Forms.MessageBox.Show("Botscript.dll 加载失败！");
+                Environment.Exit(-1);
+            }
+        }
+        protected override bool PreHandler(string rawData)
+        {
+            byte[] utf8bytes = Encoding.UTF8.GetBytes(rawData);
+            //Console.WriteLine($"call OnMessage({rawData})");
+            IntPtr result = OnMessage(Session.Sid, rawData, (uint)utf8bytes.Length);
+            //Console.WriteLine("onmessage return @" + Session.Sid);
+            string sResult = UTF8Marshaler.GetInstance("").MarshalNativeToManaged(result) as string;
+            //Console.WriteLine(sResult);
+            Session.DoSend(sResult);
+            OnMessageFinished(result);
+            return true;
+        }
+        public override void OnClose()
+        {
+            OnDisconnect(Session.Sid);
+        }
+        public static int SendMessageProxy(uint nConnectionId, IntPtr message, int length)
+        {
+            Logger.Instance.I(CLASS_NAME, $"enter SendMessageProxy {nConnectionId}");
+            try
+            {
+                if (message != IntPtr.Zero)
+                {
+                    List<byte> bytes = new List<byte>();
+                    for (int offset = 0; offset < length; offset++)
+                    {
+                        byte b = Marshal.ReadByte(message, offset);
+                        bytes.Add(b);
+                    }
+                    string sOut = Encoding.UTF8.GetString(bytes.ToArray(), 0, bytes.Count);
+                    bool bReset = false;
+                    JObject request = JObject.Parse(sOut);
+                    if ((string)request["Method"] == "ReadMessage" && (int)request["type"] == 0 && (int)request["state"] == 1)
+                    {
+                        //执行器调用
+                        //尝试申请内存，失败则主动退出，设置重启进程标记
+                        JObject response = new JObject
+                        {
+                            ["Executor"] = request["Executor"],
+                            ["Method"] = "ReadMessage",
+                            ["type"] = 999,
+                            ["state"] = 0,
+                            ["reason"] = 1
+                        };
+
+                        IntPtr pmem = IntPtr.Zero;
+                        try
+                        {
+                            //throw new Exception("mem not enough ");
+                            pmem = Marshal.AllocHGlobal(100 * 1024 * 1024);
+                            if (pmem == IntPtr.Zero)
+                            {
+                                SimpleServer.TheServer.SessionDirectOutput(nConnectionId,Newtonsoft.Json.JsonConvert.SerializeObject(response));
+                                bReset = true;
+                            }
+                            Console.WriteLine("mem enough gt 100m,@" + pmem);//使用一下避免优化
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Instance.E(CLASS_NAME, ex.ToString());
+                            SimpleServer.TheServer.SessionDirectOutput(nConnectionId, Newtonsoft.Json.JsonConvert.SerializeObject(response));
+                            bReset = true;
+
+                        }
+                        finally
+                        {
+                            Marshal.FreeCoTaskMem(pmem);
+                        }
+                    }
+                    SimpleServer.TheServer.SessionDirectOutput(nConnectionId, sOut);
+                    if (bReset)
+                    {
+                        SimpleServer.TheServer.SessionShutdown(nConnectionId);
+                        Environment.Exit(unchecked((int)0xFee1Dead));
+                    }
+                    return 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            return 1;
+        }
+
+        [UnmanagedFunctionPointerAttribute(CallingConvention.Cdecl)]
+        public delegate int SendMessage_Func(System.UInt32 nConnectionId, IntPtr message, int length);
+
+#if false
+        const string dllPathBotScript = @"BotScriptD.dll";
+#else
+        const string dllPathBotScript = @"BotScript.dll";
+#endif
+
+        [DllImport(dllPathBotScript, EntryPoint = "OnConnect")]
+        extern static void OnConnect(System.UInt32 nConnectionId, SendMessage_Func pSendMsgFunc);
+
+        //注意传入传出都是UTF-8
+        [DllImport(dllPathBotScript, EntryPoint = "OnMessage")]
+        extern static IntPtr OnMessage(System.UInt32 nConnectionId, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(UTF8Marshaler))] string message, System.UInt32 length);
+
+        [DllImport(dllPathBotScript, EntryPoint = "OnMessageFinished")]
+        extern static void OnMessageFinished(IntPtr pString);
+
+        [DllImport(dllPathBotScript, EntryPoint = "OnDisconnect")]
+        extern static void OnDisconnect(System.UInt32 nConnectionId);
+    }
+}
