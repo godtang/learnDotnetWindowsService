@@ -48,7 +48,7 @@ namespace myWindowsService
                 Console.WriteLine(ex);
             }
         }
-
+        
         [DllImport("kernel32")]
         private static extern int GetPrivateProfileString(string lpAppName, string lpKeyName, string lpDefault, StringBuilder lpReturnedString, int nSize, string lpFileName);
         private void writeLog(LoggerLevel level,string m, string s, int lineNumber, string fileName)
@@ -59,7 +59,7 @@ namespace myWindowsService
                 try
                 {
                     Console.WriteLine(content);
-                    string path = string.Format(@".\log\{0}.log", "ServerPlugins");
+                    string path = string.Format(@".\log\{0}.log", "myWindowsService");
                     string filePath = Encoding.UTF8.GetString(Encoding.Default.GetBytes(path));
                     if (File.Exists(filePath))
                     {
@@ -73,13 +73,13 @@ namespace myWindowsService
                 }
                 return;
             }
-            if(File.Exists(@"deputy-log.ini"))
+            if(File.Exists(System.AppDomain.CurrentDomain.BaseDirectory+"log.ini"))
             {
-                LoggerLevel userLevel = LoggerLevel.DEBUG;
+                LoggerLevel userLevel = LoggerLevel.INFO;
                 try
                 {
                     StringBuilder sbConfig = new StringBuilder(1024);
-                    GetPrivateProfileString("", "level", "DEBUG", sbConfig, 1024, @"deputy-log.ini");
+                    GetPrivateProfileString("", "level", "DEBUG", sbConfig, 1024, @"log.ini");
                     if(sbConfig.ToString().Length>0)
                     {
                         Enum.TryParse(sbConfig.ToString(), out userLevel);
@@ -89,7 +89,7 @@ namespace myWindowsService
                 Console.WriteLine(content);
                 if((int)level >= (int)userLevel)
                 {
-                    string path = string.Format(@".\log\{0}{1}.log", "ServerPlugins", DateTime.Now.ToString("yyyyMMdd"));
+                    string path = string.Format(@"{2}log\{0}_{1}.log", "myWindowsService", DateTime.Now.ToString("yyyyMMdd"), System.AppDomain.CurrentDomain.BaseDirectory);
                     writeFileLog(path, content);
                 }
             }

@@ -65,50 +65,30 @@ namespace myWindowsService
         {
             InitializeComponent();
         }
-        static string filePath = @"D:\MyServiceLog.txt";
+
         Thread mainTask;
         static WebSocketServer wssv;
         protected override void OnStart(string[] args)
         {
-            using (FileStream stream = new FileStream(filePath, FileMode.Append))
-            using (StreamWriter writer = new StreamWriter(stream))
-            {
-                writer.WriteLine($"[{DateTime.Now}]服务启动...");
-            }
-
+            Logger.Instance.D("MyService","服务启动...");
             mainTask = new Thread(MainTask);
             mainTask.Start();
 
-            using (FileStream stream = new FileStream(filePath, FileMode.Append))
-            using (StreamWriter writer = new StreamWriter(stream))
-            {
-                writer.WriteLine($"[{DateTime.Now}]服务启动！");
-            }
+            Logger.Instance.D("MyService", "服务启动!");
         }
 
         protected override void OnStop()
         {
-            using (FileStream stream = new FileStream(filePath, FileMode.Append))
-            using (StreamWriter writer = new StreamWriter(stream))
-            {
-                writer.WriteLine($"[{DateTime.Now}]服务关闭...");
-            }
+            Logger.Instance.D("MyService", "服务关闭...");
             wssv.Stop();
             mainTask.Abort();
-            using (FileStream stream = new FileStream(filePath, FileMode.Append))
-            using (StreamWriter writer = new StreamWriter(stream))
-            {
-                writer.WriteLine($"[{DateTime.Now}]服务关闭！");
-            }
+
+            Logger.Instance.D("MyService", "服务关闭!");
         }
 
         public static void MainTask()
         {
-            using (FileStream stream = new FileStream(filePath, FileMode.Append))
-            using (StreamWriter writer = new StreamWriter(stream))
-            {
-                writer.WriteLine($"[{DateTime.Now}]MainTask running");
-            }
+            Logger.Instance.D("MyService", "MainTask running");
             int mainPort = 12345;
             var server = new myWindowsService.SimpleServer();
             wssv = new WebSocketServer(System.Net.IPAddress.Loopback, mainPort);
