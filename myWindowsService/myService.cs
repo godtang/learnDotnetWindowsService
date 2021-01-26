@@ -9,6 +9,7 @@ using System.ServiceProcess;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using WebSocketSharp;
 using WebSocketSharp.Server;
 
 namespace myWindowsService
@@ -59,6 +60,8 @@ namespace myWindowsService
             }
         }
     }
+
+
     public partial class MyService : ServiceBase
     {
         public MyService()
@@ -70,7 +73,7 @@ namespace myWindowsService
         static WebSocketServer wssv;
         protected override void OnStart(string[] args)
         {
-            Logger.Instance.D("MyService","服务启动...");
+            Logger.Instance.D("MyService", "服务启动...");
             mainTask = new Thread(MainTask);
             mainTask.Start();
 
@@ -93,7 +96,6 @@ namespace myWindowsService
             var server = new myWindowsService.SimpleServer();
             wssv = new WebSocketServer(System.Net.IPAddress.Loopback, mainPort);
             wssv.AddWebSocketService<WSLog>("/Log");
-            wssv.KeepClean = false;
             wssv.Start();
             Console.WriteLine($"Deputy, server start @{mainPort} ok.");
             server.StartScheduler();

@@ -118,7 +118,7 @@ namespace myWindowsService
         [UnmanagedFunctionPointerAttribute(CallingConvention.Cdecl)]
         public delegate int SendMessage_Func(System.UInt32 nConnectionId, IntPtr message, int length);
 
-
+        
 
         void OnConnect(System.UInt32 nConnectionId, SendMessage_Func pSendMsgFunc)
         {

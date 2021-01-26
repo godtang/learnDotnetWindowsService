@@ -89,6 +89,7 @@ namespace myWindowsService
         }
         public void OnSessionClose(ISession session)
         {
+            Logger.Instance.D(CLASS_NAME, $"sessionid={session.Sid}");
             try
             {
                 var d = _dispatchers.Find(a => a.Session.Sid == session.Sid);
