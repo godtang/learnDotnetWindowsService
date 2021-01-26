@@ -72,7 +72,8 @@ namespace myWindowsService
             Dictionary<string, Func<Dispatcher>> dispatcherFactory = new Dictionary<string, Func<Dispatcher>> {
                 {"/Log",() =>new LogDispatcher(session,_synchronizationContext)  }
             };
-            
+            Logger.Instance.D(CLASS_NAME, $"LogDispatcher,session.Name={session.Name}"); 
+
             try
             {
                 if (session.Name == "/Log")

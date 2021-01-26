@@ -75,11 +75,11 @@ namespace myWindowsService
             }
             if(File.Exists(System.AppDomain.CurrentDomain.BaseDirectory+"log.ini"))
             {
-                LoggerLevel userLevel = LoggerLevel.INFO;
+                LoggerLevel userLevel = LoggerLevel.DEBUG;
                 try
                 {
                     StringBuilder sbConfig = new StringBuilder(1024);
-                    GetPrivateProfileString("", "level", "DEBUG", sbConfig, 1024, @"log.ini");
+                    GetPrivateProfileString("", "level", "INFO", sbConfig, 1024, @"log.ini");
                     if(sbConfig.ToString().Length>0)
                     {
                         Enum.TryParse(sbConfig.ToString(), out userLevel);

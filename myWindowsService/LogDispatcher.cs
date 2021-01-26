@@ -35,14 +35,11 @@ namespace myWindowsService
         }
         protected override bool PreHandler(string rawData)
         {
+            Logger.Instance.D(CLASS_NAME, $"PreHandler");
             byte[] utf8bytes = Encoding.UTF8.GetBytes(rawData);
-            //Console.WriteLine($"call OnMessage({rawData})");
-            IntPtr result = OnMessage(Session.Sid, rawData, (uint)utf8bytes.Length);
-            //Console.WriteLine("onmessage return @" + Session.Sid);
-            string sResult = UTF8Marshaler.GetInstance("").MarshalNativeToManaged(result) as string;
+            string sResult = OnMessage(Session.Sid, rawData, (uint)utf8bytes.Length);
             //Console.WriteLine(sResult);
             Session.DoSend(sResult);
-            OnMessageFinished(result);
             return true;
         }
         public override void OnClose()
@@ -85,7 +82,7 @@ namespace myWindowsService
                             pmem = Marshal.AllocHGlobal(100 * 1024 * 1024);
                             if (pmem == IntPtr.Zero)
                             {
-                                SimpleServer.TheServer.SessionDirectOutput(nConnectionId,Newtonsoft.Json.JsonConvert.SerializeObject(response));
+                                SimpleServer.TheServer.SessionDirectOutput(nConnectionId, Newtonsoft.Json.JsonConvert.SerializeObject(response));
                                 bReset = true;
                             }
                             Console.WriteLine("mem enough gt 100m,@" + pmem);//使用一下避免优化
@@ -121,23 +118,30 @@ namespace myWindowsService
         [UnmanagedFunctionPointerAttribute(CallingConvention.Cdecl)]
         public delegate int SendMessage_Func(System.UInt32 nConnectionId, IntPtr message, int length);
 
-#if false
-        const string dllPathBotScript = @"BotScriptD.dll";
-#else
-        const string dllPathBotScript = @"BotScript.dll";
-#endif
 
-        [DllImport(dllPathBotScript, EntryPoint = "OnConnect")]
-        extern static void OnConnect(System.UInt32 nConnectionId, SendMessage_Func pSendMsgFunc);
 
-        //注意传入传出都是UTF-8
-        [DllImport(dllPathBotScript, EntryPoint = "OnMessage")]
-        extern static IntPtr OnMessage(System.UInt32 nConnectionId, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(UTF8Marshaler))] string message, System.UInt32 length);
+        void OnConnect(System.UInt32 nConnectionId, SendMessage_Func pSendMsgFunc)
+        {
+            Logger.Instance.I(CLASS_NAME, "OnConnect");
+        }
 
-        [DllImport(dllPathBotScript, EntryPoint = "OnMessageFinished")]
-        extern static void OnMessageFinished(IntPtr pString);
 
-        [DllImport(dllPathBotScript, EntryPoint = "OnDisconnect")]
-        extern static void OnDisconnect(System.UInt32 nConnectionId);
+        string OnMessage(System.UInt32 nConnectionId, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(UTF8Marshaler))] string message, System.UInt32 length)
+        {
+            Logger.Instance.I(CLASS_NAME, "OnMessage");
+            return "";
+        }
+
+
+        void OnMessageFinished(IntPtr pString)
+        {
+            Logger.Instance.I(CLASS_NAME, "OnMessageFinished");
+        }
+
+
+        void OnDisconnect(System.UInt32 nConnectionId)
+        {
+            Logger.Instance.I(CLASS_NAME, "OnDisconnect");
+        }
     }
 }
