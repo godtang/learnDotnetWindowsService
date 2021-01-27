@@ -35,7 +35,7 @@ namespace myWindowsService
         }
         protected override bool PreHandler(string rawData)
         {
-            Logger.Instance.D(CLASS_NAME, $"PreHandler");
+            Logger.Instance.D(CLASS_NAME, $"PreHandler={rawData}");
             byte[] utf8bytes = Encoding.UTF8.GetBytes(rawData);
             string sResult = OnMessage(Session.Sid, rawData, (uint)utf8bytes.Length);
             //Console.WriteLine(sResult);
@@ -118,7 +118,7 @@ namespace myWindowsService
         [UnmanagedFunctionPointerAttribute(CallingConvention.Cdecl)]
         public delegate int SendMessage_Func(System.UInt32 nConnectionId, IntPtr message, int length);
 
-        
+
 
         void OnConnect(System.UInt32 nConnectionId, SendMessage_Func pSendMsgFunc)
         {
@@ -129,10 +129,16 @@ namespace myWindowsService
         string OnMessage(System.UInt32 nConnectionId, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(UTF8Marshaler))] string message, System.UInt32 length)
         {
             Logger.Instance.I(CLASS_NAME, "OnMessage");
+            SendUTF8("i'm recv:" + message);
             return "";
         }
 
 
+        /// <summary>
+        /// 这是原来释放内存的函数
+        /// </summary>
+        /// <param name="pString"></param>
+        /// <returns></returns>
         void OnMessageFinished(IntPtr pString)
         {
             Logger.Instance.I(CLASS_NAME, "OnMessageFinished");

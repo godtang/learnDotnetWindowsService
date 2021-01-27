@@ -68,7 +68,7 @@ namespace myWindowsService
         /// <param name="session"></param>
         public void OnSessionOpen(ISession session)
         {
-            Logger.Instance.D(CLASS_NAME, $"sessionid={session.Sid}");
+            Logger.Instance.D(CLASS_NAME, $"OnSessionOpen sessionid={session.Sid}");
             Dictionary<string, Func<Dispatcher>> dispatcherFactory = new Dictionary<string, Func<Dispatcher>> {
                 {"/Log",() =>new LogDispatcher(session,_synchronizationContext)  }
             };
@@ -89,7 +89,7 @@ namespace myWindowsService
         }
         public void OnSessionClose(ISession session)
         {
-            Logger.Instance.D(CLASS_NAME, $"sessionid={session.Sid}");
+            Logger.Instance.D(CLASS_NAME, $"OnSessionClose sessionid={session.Sid}");
             try
             {
                 var d = _dispatchers.Find(a => a.Session.Sid == session.Sid);
