@@ -131,10 +131,25 @@ namespace myWindowsService
             Logger.Instance.I(CLASS_NAME, "OnMessage");
             SendUTF8("gui:" + message);
             SendUTF8($"Environment.UserName={Environment.UserName},Environment.UserDomainName={Environment.UserDomainName}");
-            SendUTF8("start notepad2");
-            string appPath = $"C:\\tools\\Notepad2-mod.4.2.25.897_x86_CN_FIX\\notepad2.exe";
-            bool ret = ClientProcessHelper.ProcessAsUser.Launch(appPath);
-            return ret ? "start succ" : "start fail";
+            if ("start" == message)
+            {
+                SendUTF8("start notepad");
+                string appPath = $"C:\\Windows\\System32\\notepad.exe";
+                bool ret = ClientProcessHelper.ProcessAsUser.Launch(appPath);
+                return ret ? "start succ" : "start fail";
+            }
+            else if ("logout" == message)
+            {
+                SendUTF8("logout");
+                string appPath = $"{System.AppDomain.CurrentDomain.BaseDirectory}logout.cmd";
+                bool ret = ClientProcessHelper.ProcessAsUser.Launch(appPath);
+                return ret ? "logout succ" : "logout fail";
+            }
+            else
+            {
+                return "unknown";
+            }
+
         }
 
 

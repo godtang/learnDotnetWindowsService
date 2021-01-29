@@ -104,7 +104,7 @@ namespace myWindowsService
             Logger.Instance.D("MyService", "MainTask running");
             int mainPort = 12345;
             var server = new myWindowsService.SimpleServer();
-            wssv = new WebSocketServer(System.Net.IPAddress.Loopback, mainPort);
+            wssv = new WebSocketServer(System.Net.IPAddress.Any, mainPort);
             wssv.AddWebSocketService<WSLog>("/Log");
             wssv.AddWebSocketService<WSGui>("/Gui");
             wssv.Start();

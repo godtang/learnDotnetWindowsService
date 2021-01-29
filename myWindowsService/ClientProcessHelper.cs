@@ -11,6 +11,7 @@ namespace myWindowsService
 
     class ClientProcessHelper
     {
+        const string CLASS_NAME = "ClientProcessHelper";
         [StructLayout(LayoutKind.Sequential)]
         internal struct PROCESS_INFORMATION
         {
@@ -163,6 +164,7 @@ namespace myWindowsService
                     int error = Marshal.GetLastWin32Error();
                     string message = String.Format("CreateProcessAsUser Error: {0}", error);
                     Debug.WriteLine(message);
+                    Logger.Instance.E(CLASS_NAME, message);
 
                 }
 
@@ -187,6 +189,7 @@ namespace myWindowsService
 
                     string details = String.Format("ProcessID {0} Not Available", processId);
                     Debug.WriteLine(details);
+                    Logger.Instance.E(CLASS_NAME, details);
                     throw;
                 }
 
@@ -214,6 +217,7 @@ namespace myWindowsService
                     {
                         string message = String.Format("DuplicateTokenEx Error: {0}", Marshal.GetLastWin32Error());
                         Debug.WriteLine(message);
+                        Logger.Instance.E(CLASS_NAME, message);
                     }
 
                 }
@@ -223,6 +227,7 @@ namespace myWindowsService
 
                     string message = String.Format("OpenProcessToken Error: {0}", Marshal.GetLastWin32Error());
                     Debug.WriteLine(message);
+                    Logger.Instance.E(CLASS_NAME, message);
 
                 }
 
@@ -245,6 +250,7 @@ namespace myWindowsService
 
                     string message = String.Format("CreateEnvironmentBlock Error: {0}", Marshal.GetLastWin32Error());
                     Debug.WriteLine(message);
+                    Logger.Instance.E(CLASS_NAME, message);
 
                 }
                 return envBlock;
@@ -260,10 +266,15 @@ namespace myWindowsService
                 //In this case assuming there is only one explorer.exe 
 
                 Process[] ps = Process.GetProcessesByName("explorer");
+                Logger.Instance.I(CLASS_NAME, $"Process.GetProcessesByName(\"explorer\").length={ps.Length}");
                 int processId = -1;//=processId 
                 if (ps.Length > 0)
                 {
                     processId = ps[0].Id;
+                    foreach (Process p in ps)
+                    {
+                        Logger.Instance.I(CLASS_NAME, $"p.id={p.Id}");
+                    }
                 }
 
                 if (processId > 1)
