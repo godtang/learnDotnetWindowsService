@@ -68,7 +68,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClientProcessHelper.cs" />
     <Compile Include="Dispatcher.cs" />
+    <Compile Include="GuiDispatcher.cs" />
     <Compile Include="LogDispatcher.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="MyService.cs" />

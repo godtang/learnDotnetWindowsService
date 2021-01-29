@@ -60,6 +60,16 @@ namespace myWindowsService
             }
         }
     }
+    class WSGui : WSBase
+    {
+        public override string Name
+        {
+            get
+            {
+                return "/Gui";
+            }
+        }
+    }
 
 
     public partial class MyService : ServiceBase
@@ -96,6 +106,7 @@ namespace myWindowsService
             var server = new myWindowsService.SimpleServer();
             wssv = new WebSocketServer(System.Net.IPAddress.Loopback, mainPort);
             wssv.AddWebSocketService<WSLog>("/Log");
+            wssv.AddWebSocketService<WSGui>("/Gui");
             wssv.Start();
             Console.WriteLine($"Deputy, server start @{mainPort} ok.");
             server.StartScheduler();

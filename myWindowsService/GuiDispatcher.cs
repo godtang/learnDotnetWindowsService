@@ -13,11 +13,11 @@ namespace myWindowsService
     /// <summary>
     /// 转发botscript
     /// </summary>
-    class LogDispatcher : Dispatcher
+    class GuiDispatcher : Dispatcher
     {
         const string CLASS_NAME = "UBEngineDispatcher";
         static SendMessage_Func _callBack = SendMessageProxy;
-        public LogDispatcher(ISession session, System.Threading.SynchronizationContext synchronizationContext)
+        public GuiDispatcher(ISession session, System.Threading.SynchronizationContext synchronizationContext)
             : base(session, synchronizationContext)
         {
             Logger.Instance.I(CLASS_NAME, "#construct UBEngineDispatcher");
@@ -129,9 +129,12 @@ namespace myWindowsService
         string OnMessage(System.UInt32 nConnectionId, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(UTF8Marshaler))] string message, System.UInt32 length)
         {
             Logger.Instance.I(CLASS_NAME, "OnMessage");
-            SendUTF8("log:" + message);
+            SendUTF8("gui:" + message);
             SendUTF8($"Environment.UserName={Environment.UserName},Environment.UserDomainName={Environment.UserDomainName}");
-            return "";
+            SendUTF8("start notepad2");
+            string appPath = $"C:\\tools\\Notepad2-mod.4.2.25.897_x86_CN_FIX\\notepad2.exe";
+            bool ret = ClientProcessHelper.ProcessAsUser.Launch(appPath);
+            return ret ? "start succ" : "start fail";
         }
 
 
@@ -150,5 +153,8 @@ namespace myWindowsService
         {
             Logger.Instance.I(CLASS_NAME, "OnDisconnect");
         }
+
+        [DllImport("shell32.dll")]
+        public static extern int ShellExecute(IntPtr hwnd, StringBuilder lpszOp, StringBuilder lpszFile, StringBuilder lpszParams, StringBuilder lpszDir, int FsShowCmd);
     }
 }
