@@ -13,7 +13,7 @@ namespace myWindowsService
     //默认DEBUG
     public class Logger
     {
-        enum LoggerLevel {INFO,DEBUG,WARN,ERROR,FATAL }
+        enum LoggerLevel { INFO, DEBUG, WARN, ERROR, FATAL }
         private static readonly object _lock = new object();
         private Logger()
         {
@@ -48,46 +48,28 @@ namespace myWindowsService
                 Console.WriteLine(ex);
             }
         }
-        
+
         [DllImport("kernel32")]
         private static extern int GetPrivateProfileString(string lpAppName, string lpKeyName, string lpDefault, StringBuilder lpReturnedString, int nSize, string lpFileName);
-        private void writeLog(LoggerLevel level,string m, string s, int lineNumber, string fileName)
+        private void writeLog(LoggerLevel level, string m, string s, int lineNumber, string fileName)
         {
-            var content=$"[{DateTime.Now.ToString("hh:mm:ss.fff")}]{m}[{level.ToString()}],{System.IO.Path.GetFileName(fileName)}({lineNumber}):{s}";
-            if((int)level >= (int)LoggerLevel.FATAL)//fatal会被crashreport收集
-            {
-                try
-                {
-                    Console.WriteLine(content);
-                    string path = string.Format(@".\log\{0}.log", "myWindowsService");
-                    string filePath = Encoding.UTF8.GetString(Encoding.Default.GetBytes(path));
-                    if (File.Exists(filePath))
-                    {
-                        File.Delete(filePath);
-                    }
-                    writeFileLog(filePath, content);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-                return;
-            }
-            if(File.Exists(System.AppDomain.CurrentDomain.BaseDirectory+"log.ini"))
+            var content = $"[{DateTime.Now.ToString("HH:mm:ss.fff")}]{m}[{level.ToString()}],{System.IO.Path.GetFileName(fileName)}({lineNumber}):{s}";
+
+            if (File.Exists(System.AppDomain.CurrentDomain.BaseDirectory + "log.ini"))
             {
                 LoggerLevel userLevel = LoggerLevel.DEBUG;
                 try
                 {
                     StringBuilder sbConfig = new StringBuilder(1024);
                     GetPrivateProfileString("", "level", "INFO", sbConfig, 1024, @"log.ini");
-                    if(sbConfig.ToString().Length>0)
+                    if (sbConfig.ToString().Length > 0)
                     {
                         Enum.TryParse(sbConfig.ToString(), out userLevel);
                     }
                 }
                 catch { }
                 Console.WriteLine(content);
-                if((int)level >= (int)userLevel)
+                if ((int)level >= (int)userLevel)
                 {
                     string path = string.Format(@"{2}log\{0}_{1}.log", "myWindowsService", DateTime.Now.ToString("yyyyMMdd"), System.AppDomain.CurrentDomain.BaseDirectory);
                     writeFileLog(path, content);
@@ -110,10 +92,10 @@ namespace myWindowsService
                 {
                     Console.WriteLine(ex);
                 }
-            }  
+            }
         }
-        
-       
+
+
         public void I(string m, string s, [System.Runtime.CompilerServices.CallerLineNumber] int lineNumber = 0, [System.Runtime.CompilerServices.CallerFilePath] string fileName = "")
         {
             writeLog(LoggerLevel.INFO, m, s, lineNumber, fileName);
