@@ -101,15 +101,16 @@ namespace myWindowsService
 
         public static void MainTask()
         {
-            Logger.Instance.D("MyService", "MainTask running");
+            Logger.Instance.D("MyService", "MainTask running ...");
             int mainPort = 12345;
             var server = new myWindowsService.SimpleServer();
             wssv = new WebSocketServer(System.Net.IPAddress.Any, mainPort);
             wssv.AddWebSocketService<WSLog>("/Log");
             wssv.AddWebSocketService<WSGui>("/Gui");
             wssv.Start();
-            Console.WriteLine($"Deputy, server start @{mainPort} ok.");
-            server.StartScheduler();
+            Logger.Instance.D("MyService", $"Deputy, server start @{mainPort} ok.");
+            //server.StartScheduler();
+            Logger.Instance.D("MyService", "MainTask running !");
         }
     }
 }

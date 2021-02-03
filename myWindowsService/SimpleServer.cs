@@ -77,12 +77,6 @@ namespace myWindowsService
 
             try
             {
-                if (session.Name == "/Log")
-                {
-                    var d = _dispatchers.Find(a => a.Session.Name == session.Name);
-                    if (d != null)
-                        d.Session.DoClose();
-                }
                 _dispatchers.Add(dispatcherFactory[session.Name].Invoke());
             }
             catch (Exception)
