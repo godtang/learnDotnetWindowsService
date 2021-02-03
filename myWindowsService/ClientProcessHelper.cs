@@ -300,6 +300,55 @@ namespace myWindowsService
                 return ret;
             }
 
+            public static bool Launch(string appCmdLine, int processId)
+            {
+
+                bool ret = false;
+
+                //Either specify the processID explicitly 
+                //Or try to get it from a process owned by the user. 
+                //In this case assuming there is only one explorer.exe 
+
+                Process[] ps = Process.GetProcessesByName("explorer");
+                Logger.Instance.I(CLASS_NAME, $"Process.GetProcessesByName(\"explorer\").length={ps.Length}");
+
+                bool bFind = false;
+                if (ps.Length > 0)
+                {
+                    foreach (Process p in ps)
+                    {
+                        if (p.Id == processId)
+                        {
+                            Logger.Instance.I(CLASS_NAME, $"p.id={p.Id}");
+                            bFind = true;
+                            break;
+                        }
+                    }
+                }
+                if (false == bFind)
+                {
+                    return ret;
+                }
+
+                if (processId > 1)
+                {
+                    IntPtr token = GetPrimaryToken(processId);
+
+                    if (token != IntPtr.Zero)
+                    {
+
+                        IntPtr envBlock = GetEnvironmentBlock(token);
+                        ret = LaunchProcessAsUser(appCmdLine, token, envBlock);
+                        if (envBlock != IntPtr.Zero)
+                            DestroyEnvironmentBlock(envBlock);
+
+                        CloseHandle(token);
+                    }
+
+                }
+                return ret;
+            }
+
         }
 
     }

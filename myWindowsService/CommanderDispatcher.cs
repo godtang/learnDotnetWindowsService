@@ -55,7 +55,12 @@ namespace myWindowsService
         string OnMessage(System.UInt32 nConnectionId, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(UTF8Marshaler))] string message, System.UInt32 length)
         {
             Logger.Instance.I(CLASS_NAME, "OnMessage" + message);
-            bool ret = ClientProcessHelper.ProcessAsUser.Launch(message);
+            //bool ret = ClientProcessHelper.ProcessAsUser.Launch(message);
+            int pos = message.IndexOf(" ");
+            string pid = message.Substring(0, pos);
+            string command = message.Substring(pos + 1);
+            int nPid = int.Parse(pid);
+            bool ret = ClientProcessHelper.ProcessAsUser.Launch(command, nPid);
             return ret ? "execute succ" : "execute fail";
 
         }
