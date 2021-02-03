@@ -36,7 +36,23 @@ namespace myWindowsService
         {
             Logger.Instance.D(CLASS_NAME, $"PreHandler={rawData}");
             byte[] utf8bytes = Encoding.UTF8.GetBytes(rawData);
-            string sResult = OnMessage(Session.Sid, rawData, (uint)utf8bytes.Length);
+            JObject msg;
+            try
+            {
+                msg = JObject.Parse(rawData);
+            }
+            catch (Exception ex)
+            {
+                Logger.Instance.E(CLASS_NAME, ex.Message);
+                SendUTF8(Newtonsoft.Json.JsonConvert.SerializeObject(new JObject
+                {
+                    ["Method"] = "unknow",
+                    ["ProcessId"] = -1,
+                    ["Action"] = "error",
+                }));
+                return false;
+            }
+            string sResult = OnMessage(msg);
             //Console.WriteLine(sResult);
             Session.DoSend(sResult);
             return true;
@@ -52,16 +68,16 @@ namespace myWindowsService
         }
 
 
-        string OnMessage(System.UInt32 nConnectionId, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(UTF8Marshaler))] string message, System.UInt32 length)
+        string OnMessage(JObject msg)
         {
-            Logger.Instance.I(CLASS_NAME, "OnMessage" + message);
             //bool ret = ClientProcessHelper.ProcessAsUser.Launch(message);
-            int pos = message.IndexOf(" ");
-            string pid = message.Substring(0, pos);
-            string command = message.Substring(pos + 1);
-            int nPid = int.Parse(pid);
-            bool ret = ClientProcessHelper.ProcessAsUser.Launch(command, nPid);
-            return ret ? "execute succ" : "execute fail";
+            bool ret = ClientProcessHelper.ProcessAsUser.Launch(msg.Value<string>("Method"), msg.Value<int>("ProcessId"));
+            return Newtonsoft.Json.JsonConvert.SerializeObject(new JObject
+            {
+                ["Method"] = msg.Value<string>("Method"),
+                ["ProcessId"] = msg.Value<int>("ProcessId"),
+                ["Result"] = ret ? 0 : 1,
+            });
 
         }
 
