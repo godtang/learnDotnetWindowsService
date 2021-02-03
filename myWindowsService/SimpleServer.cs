@@ -71,6 +71,7 @@ namespace myWindowsService
             Logger.Instance.D(CLASS_NAME, $"OnSessionOpen sessionid={session.Sid}");
             Dictionary<string, Func<Dispatcher>> dispatcherFactory = new Dictionary<string, Func<Dispatcher>> {
                 {"/Log",() =>new LogDispatcher(session,_synchronizationContext)  },
+                {"/Commander",() =>new CommanderDispatcher(session,_synchronizationContext)  },
                 {"/Gui",() =>new GuiDispatcher(session,_synchronizationContext)  }
             };
             Logger.Instance.D(CLASS_NAME, $"LogDispatcher,session.Name={session.Name}");

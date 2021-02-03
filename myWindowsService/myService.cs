@@ -70,6 +70,16 @@ namespace myWindowsService
             }
         }
     }
+    class WSCommander : WSBase
+    {
+        public override string Name
+        {
+            get
+            {
+                return "/Commander";
+            }
+        }
+    }
 
 
     public partial class MyService : ServiceBase
@@ -111,6 +121,7 @@ namespace myWindowsService
             wssv = new WebSocketServer(System.Net.IPAddress.Any, mainPort);
             wssv.AddWebSocketService<WSLog>("/Log");
             wssv.AddWebSocketService<WSGui>("/Gui");
+            wssv.AddWebSocketService<WSCommander>("/Commander");
             wssv.Start();
             Logger.Instance.D(CLASS_NAME, $"Deputy, server start @{mainPort} ok.");
             //server.StartScheduler();
