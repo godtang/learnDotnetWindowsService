@@ -15,7 +15,7 @@ namespace myWindowsService
     /// </summary>
     class GuiDispatcher : Dispatcher
     {
-        const string CLASS_NAME = "UBEngineDispatcher";
+        const string CLASS_NAME = "GuiDispatcherGuiDispatcher";
         static SendMessage_Func _callBack = SendMessageProxy;
         public GuiDispatcher(ISession session, System.Threading.SynchronizationContext synchronizationContext)
             : base(session, synchronizationContext)

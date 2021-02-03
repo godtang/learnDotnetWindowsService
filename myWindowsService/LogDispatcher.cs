@@ -15,7 +15,7 @@ namespace myWindowsService
     /// </summary>
     class LogDispatcher : Dispatcher
     {
-        const string CLASS_NAME = "UBEngineDispatcher";
+        const string CLASS_NAME = "LogDispatcher";
         static SendMessage_Func _callBack = SendMessageProxy;
         public LogDispatcher(ISession session, System.Threading.SynchronizationContext synchronizationContext)
             : base(session, synchronizationContext)
