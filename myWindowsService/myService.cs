@@ -74,6 +74,7 @@ namespace myWindowsService
 
     public partial class MyService : ServiceBase
     {
+        static public string CLASS_NAME = "MyService";
         public MyService()
         {
             InitializeComponent();
@@ -83,34 +84,37 @@ namespace myWindowsService
         static WebSocketServer wssv;
         protected override void OnStart(string[] args)
         {
-            Logger.Instance.D("MyService", "服务启动...");
+            Logger.Instance.D(CLASS_NAME, "服务启动...");
             mainTask = new Thread(MainTask);
             mainTask.Start();
 
-            Logger.Instance.D("MyService", "服务启动!");
+            // 服务启动的时候必须初始化
+            Logger.Instance.D(CLASS_NAME, $"main explorer pid={ServiceInfo.GetInstance().getMainProcessId()}");
+
+            Logger.Instance.D(CLASS_NAME, "服务启动!");
         }
 
         protected override void OnStop()
         {
-            Logger.Instance.D("MyService", "服务关闭...");
+            Logger.Instance.D(CLASS_NAME, "服务关闭...");
             wssv.Stop();
             mainTask.Abort();
 
-            Logger.Instance.D("MyService", "服务关闭!");
+            Logger.Instance.D(CLASS_NAME, "服务关闭!");
         }
 
         public static void MainTask()
         {
-            Logger.Instance.D("MyService", "MainTask running ...");
+            Logger.Instance.D(CLASS_NAME, "MainTask running ...");
             int mainPort = 12345;
             var server = new myWindowsService.SimpleServer();
             wssv = new WebSocketServer(System.Net.IPAddress.Any, mainPort);
             wssv.AddWebSocketService<WSLog>("/Log");
             wssv.AddWebSocketService<WSGui>("/Gui");
             wssv.Start();
-            Logger.Instance.D("MyService", $"Deputy, server start @{mainPort} ok.");
+            Logger.Instance.D(CLASS_NAME, $"Deputy, server start @{mainPort} ok.");
             //server.StartScheduler();
-            Logger.Instance.D("MyService", "MainTask running !");
+            Logger.Instance.D(CLASS_NAME, "MainTask running !");
         }
     }
 }

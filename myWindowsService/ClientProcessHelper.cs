@@ -270,10 +270,14 @@ namespace myWindowsService
                 int processId = -1;//=processId 
                 if (ps.Length > 0)
                 {
-                    processId = ps[0].Id;
                     foreach (Process p in ps)
                     {
                         Logger.Instance.I(CLASS_NAME, $"p.id={p.Id}");
+                        if (p.Id != ServiceInfo.GetInstance().getMainProcessId())
+                        {
+                            processId = p.Id;
+                            break;
+                        }
                     }
                 }
 
