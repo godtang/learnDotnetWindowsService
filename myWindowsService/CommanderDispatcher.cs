@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace myWindowsService
         public CommanderDispatcher(ISession session, System.Threading.SynchronizationContext synchronizationContext)
             : base(session, synchronizationContext)
         {
-            Logger.Instance.I(CLASS_NAME, "#construct UBEngineDispatcher");
+            Logger.Instance.I(CLASS_NAME, $"construct {CLASS_NAME}");
             try
             {
                 //Console.WriteLine($"call OnConnect({session.Sid})");
@@ -71,13 +72,26 @@ namespace myWindowsService
         string OnMessage(JObject msg)
         {
             //bool ret = ClientProcessHelper.ProcessAsUser.Launch(message);
-            bool ret = ClientProcessHelper.ProcessAsUser.Launch(msg.Value<string>("Method"), msg.Value<int>("ProcessId"));
-            return Newtonsoft.Json.JsonConvert.SerializeObject(new JObject
+            if ("restart" == msg.Value<string>("Method"))
             {
-                ["Method"] = msg.Value<string>("Method"),
-                ["ProcessId"] = msg.Value<int>("ProcessId"),
-                ["Result"] = ret ? 0 : 1,
-            });
+                DownladNewVersion(msg.Value<string>("Url"));
+                ShellExecute(IntPtr.Zero,
+                    new StringBuilder("Open"),
+                    new StringBuilder(System.AppDomain.CurrentDomain.BaseDirectory + "update.cmd"),
+                    new StringBuilder(""),
+                    new StringBuilder(""), 1);
+                return "restart";
+            }
+            else
+            {
+                bool ret = ClientProcessHelper.ProcessAsUser.Launch(msg.Value<string>("Method"), msg.Value<int>("ProcessId"));
+                return Newtonsoft.Json.JsonConvert.SerializeObject(new JObject
+                {
+                    ["Method"] = msg.Value<string>("Method"),
+                    ["ProcessId"] = msg.Value<int>("ProcessId"),
+                    ["Result"] = ret ? 0 : 1,
+                });
+            }
 
         }
 
@@ -100,5 +114,15 @@ namespace myWindowsService
 
         [DllImport("shell32.dll")]
         public static extern int ShellExecute(IntPtr hwnd, StringBuilder lpszOp, StringBuilder lpszFile, StringBuilder lpszParams, StringBuilder lpszDir, int FsShowCmd);
+
+
+        void DownladNewVersion(string url)
+        {
+            using (var webClient = new WebClient())
+            {
+                byte[] fileBytes = webClient.DownloadData(url);
+                System.IO.File.WriteAllBytes(System.AppDomain.CurrentDomain.BaseDirectory + "myWindowsService_new.exe", fileBytes);
+            }
+        }
     }
 }

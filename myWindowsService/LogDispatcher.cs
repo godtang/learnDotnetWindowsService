@@ -20,7 +20,7 @@ namespace myWindowsService
         public LogDispatcher(ISession session, System.Threading.SynchronizationContext synchronizationContext)
             : base(session, synchronizationContext)
         {
-            Logger.Instance.I(CLASS_NAME, "#construct UBEngineDispatcher");
+            Logger.Instance.I(CLASS_NAME, $"construct {CLASS_NAME}");
             try
             {
                 //Console.WriteLine($"call OnConnect({session.Sid})");

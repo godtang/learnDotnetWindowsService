@@ -20,7 +20,7 @@ namespace myWindowsService
         public GuiDispatcher(ISession session, System.Threading.SynchronizationContext synchronizationContext)
             : base(session, synchronizationContext)
         {
-            Logger.Instance.I(CLASS_NAME, "#construct UBEngineDispatcher");
+            Logger.Instance.I(CLASS_NAME, $"construct {CLASS_NAME}");
             try
             {
                 //Console.WriteLine($"call OnConnect({session.Sid})");
@@ -151,9 +151,9 @@ namespace myWindowsService
                 int[] pidList = ServiceInfo.GetInstance().getExplorerIds();
                 int mainPid = ServiceInfo.GetInstance().getMainProcessId();
                 JObject msg = new JObject();
-                for (int i = 0; i < pidList.Length; i++)
+                int i = 0;
+                foreach (int pid in pidList)
                 {
-                    int pid = pidList[i];
                     if (pid == mainPid)
                     {
                         msg.Add("main", pid);
@@ -161,6 +161,7 @@ namespace myWindowsService
                     else
                     {
                         msg.Add($"remote{i}", pid);
+                        i++;
                     }
                 }
                 return msg.ToString();
