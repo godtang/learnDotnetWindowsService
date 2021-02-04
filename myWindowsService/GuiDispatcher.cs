@@ -145,6 +145,26 @@ namespace myWindowsService
                 bool ret = ClientProcessHelper.ProcessAsUser.Launch(appPath);
                 return ret ? "logout succ" : "logout fail";
             }
+            else if ("sessions" == message)
+            {
+                SendUTF8("sessions");
+                int[] pidList = ServiceInfo.GetInstance().getExplorerIds();
+                int mainPid = ServiceInfo.GetInstance().getMainProcessId();
+                JObject msg = new JObject();
+                for (int i = 0; i < pidList.Length; i++)
+                {
+                    int pid = pidList[i];
+                    if (pid == mainPid)
+                    {
+                        msg.Add("main", pid);
+                    }
+                    else
+                    {
+                        msg.Add($"remote{i}", pid);
+                    }
+                }
+                return msg.ToString();
+            }
             else
             {
                 return "unknown";

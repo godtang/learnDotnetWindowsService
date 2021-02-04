@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,13 +13,15 @@ namespace myWindowsService
     {
         string CLASS_NAME = "ServiceInfo";
         private static ServiceInfo instance = new ServiceInfo();
+
+
         public static ServiceInfo GetInstance()
         {
             return instance;
         }
 
         // 主桌面的explorer进程ID
-        int mainProcessId = 0;
+        private int mainProcessId = 0;
         private ServiceInfo()
         {
             Process[] ps = Process.GetProcessesByName("explorer");
@@ -34,9 +37,22 @@ namespace myWindowsService
         }
 
         // 获得主工作桌面的explorer进程ID
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public int getMainProcessId()
         {
             return mainProcessId;
+        }
+
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        public int[] getExplorerIds()
+        {
+            Process[] ps = Process.GetProcessesByName("explorer");
+            int[] pidList = new int[ps.Length];
+            for (int i = 0; i < ps.Length; i++)
+            {
+                pidList[i] = ps[i].Id;
+            }
+            return pidList;
         }
     }
 }
