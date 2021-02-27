@@ -127,5 +127,22 @@ namespace myWindowsService
             //server.StartScheduler();
             Logger.Instance.D(CLASS_NAME, "MainTask running !");
         }
+
+        // 这个函数无效！！！！
+        protected override void OnSessionChange(SessionChangeDescription changeDescription)
+        {
+            Logger.Instance.I(CLASS_NAME, $"session id = {changeDescription.SessionId}, reason = {changeDescription.Reason}");
+            switch (changeDescription.Reason)
+            {
+                case SessionChangeReason.SessionLogon:
+                case SessionChangeReason.RemoteConnect:
+                case SessionChangeReason.SessionLogoff:
+                case SessionChangeReason.RemoteDisconnect:
+                case SessionChangeReason.SessionLock:
+                case SessionChangeReason.SessionUnlock:
+                default:
+                    break;
+            }
+        }
     }
 }

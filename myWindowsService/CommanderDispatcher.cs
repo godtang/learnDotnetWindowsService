@@ -82,15 +82,27 @@ namespace myWindowsService
                     new StringBuilder(""), 1);
                 return "restart";
             }
+            else if ("getSessions" == msg.Value<string>("Method"))
+            {
+                var ret = ClientProcessHelper.ProcessAsUser.GetSessions();
+                return ret.ToString();
+            }
             else
             {
-                bool ret = ClientProcessHelper.ProcessAsUser.Launch(msg.Value<string>("Method"), msg.Value<int>("ProcessId"));
+                bool ret = ClientProcessHelper.ProcessAsUser.LaunchOnSessionId(msg.Value<string>("Method"), msg.Value<uint>("ProcessId"));
                 return Newtonsoft.Json.JsonConvert.SerializeObject(new JObject
                 {
                     ["Method"] = msg.Value<string>("Method"),
                     ["ProcessId"] = msg.Value<int>("ProcessId"),
                     ["Result"] = ret ? 0 : 1,
                 });
+                //bool ret = ClientProcessHelper.ProcessAsUser.Launch(msg.Value<string>("Method"), msg.Value<int>("ProcessId"));
+                //return Newtonsoft.Json.JsonConvert.SerializeObject(new JObject
+                //{
+                //    ["Method"] = msg.Value<string>("Method"),
+                //    ["ProcessId"] = msg.Value<int>("ProcessId"),
+                //    ["Result"] = ret ? 0 : 1,
+                //});
             }
 
         }
